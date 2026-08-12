@@ -1,0 +1,10 @@
+FROM localhost/lucys-void-packages:latest
+
+RUN xbps-install -Sy base-devel cmake ninja git perl pkg-config \
+    glu-devel MesaLib-devel libX11-devel libXext-devel libXrender-devel \
+    libXinerama-devel libXi-devel libXrandr-devel libXcursor-devel \
+    gtk+3-devel dbus-devel libcurl-devel libwebkit2gtk41-devel
+
+RUN git clone --recursive https://gitlab.com/libeigen/eigen.git .
+RUN ./build_linux.sh -d
+RUN ./build_linux.sh -s

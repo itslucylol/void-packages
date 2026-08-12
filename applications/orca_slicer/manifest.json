@@ -1,0 +1,7 @@
+{
+    "name": "Orca Slicer",
+    "script-updated": "2026-08-12",
+    "dependencies": [
+        "eigen5"
+    ]
+}
