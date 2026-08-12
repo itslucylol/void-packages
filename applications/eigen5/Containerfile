@@ -1,10 +1,23 @@
 FROM localhost/lucys-void-packages:latest
+WORKDIR /build
 
 RUN xbps-install -Sy base-devel cmake ninja git perl pkg-config \
     glu-devel MesaLib-devel libX11-devel libXext-devel libXrender-devel \
     libXinerama-devel libXi-devel libXrandr-devel libXcursor-devel \
     gtk+3-devel dbus-devel libcurl-devel libwebkit2gtk41-devel
 
-RUN git clone --recursive https://gitlab.com/libeigen/eigen.git .
-RUN ./build_linux.sh -d
-RUN ./build_linux.sh -s
+
+RUN git clone --branch 5.0 --recursive https://gitlab.com/libeigen/eigen.git /build/eigen
+
+# Build bundled dependencies
+RUN mkdir build && \
+    cd build && \
+    cmake .. -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr/local && \
+    ninja && \
+    ninja install
+
+
+# Build Main Project
+RUN ../.. && mkdir -p build && cd build && cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(pwd)/../deps/build/destdir/usr/local" && ninja
