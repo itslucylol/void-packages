@@ -1,0 +1,15 @@
+FROM docker.io/voidlinux/voidlinux:latest
+
+###   Update Repos   ###
+ENV XBPS_PASSTHROUGH=1 
+RUN mkdir -p /etc/xbps.d && \
+    cp /usr/share/xbps.d/*-repository-*.conf /etc/xbps.d/ && \
+    sed -i 's|https://alpha.de.repo.voidlinux.org|https://repo-default.voidlinux.org|g' /etc/xbps.d/*-repository-*.conf
+
+###   Update System   ##
+RUN xbps-install -Syu xbps
+RUN xbps-install -Syu
+
+###   Create Build Directory   ###
+RUN mkdir /build
+WORKDIR /build
