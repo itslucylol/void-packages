@@ -10,19 +10,10 @@ RUN xbps-install -Sy base-devel cmake ninja git perl pkg-config \
 RUN git clone --branch 5.0 --recursive https://gitlab.com/libeigen/eigen.git /build/eigen5
 WORKDIR /build/eigen5
 
-# Build bundled dependencies
+# Build
 RUN mkdir build && \
     cd build && \
     cmake .. -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX=/usr/local && \
-    ninja && \
-    ninja install
-
-
-# Build Main Project
-RUN mkdir -p build && \
-    cd build && \
-    cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(pwd)/../deps/build/destdir/usr/local" && \
-    ninja && \
+      -DCMAKE_INSTALL_PREFIX=/opt/eigen5 && \
     ninja install

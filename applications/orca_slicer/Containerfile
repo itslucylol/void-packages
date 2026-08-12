@@ -1,27 +1,27 @@
-# Step 1: Use your image that already has the build environment & Eigen installed
-FROM localhost/lucys-void-packages:latest
+FROM localhost/lvp-eigen5:latest
 
-# Step 2: Set environment variables for non-interactive builds
-ENV CMAKE_BUILD_PARALLEL_LEVEL=4
-
-# Step 3: Clone OrcaSlicer into /build/OrcaSlicer
 WORKDIR /build
+
+# 2. Clone OrcaSlicer
 RUN git clone --recursive https://github.com/OrcaSlicer/OrcaSlicer.git /build/OrcaSlicer
 
-# Step 4: Build OrcaSlicer's other bundled dependencies (excluding system-provided ones)
+# 3. Build OrcaSlicer's bundled dependencies
 WORKDIR /build/OrcaSlicer/deps
 RUN mkdir build && cd build && \
     cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release && \
     ninja
 
-# Step 5: Configure and build OrcaSlicer
+# 4. Build OrcaSlicer using your isolated Eigen 5 headers
 WORKDIR /build/OrcaSlicer
 RUN mkdir build && cd build && \
     cmake .. -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_PREFIX_PATH="/build/OrcaSlicer/deps/build/destdir/usr/local;/usr/local" \
-      -DEIGEN3_INCLUDE_DIR=/usr/local/include/eigen3 && \
-    ninja
+      -DCMAKE_PREFIX_PATH="/build/OrcaSlicer/deps/build/destdir/usr/local;/opt/eigen5" \
+      -DEIGEN3_INCLUDE_DIR=/opt/eigen5/include/eigen3 \
+      -DCMAKE_INSTALL_PREFIX=/opt/orcaslicer-portable && \
+    ninja && \
+    ninja install
 
-# Step 6: Define default entrypoint/command
-CMD ["/build/OrcaSlicer/build/bin/orcaslicer"]
+# 5. Compress the installed output into a portable tarball
+WORKDIR /opt
+RUN tar -czvf /orcaslicer-portable.tar.gz orcaslicer-portable

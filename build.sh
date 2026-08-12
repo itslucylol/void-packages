@@ -2,4 +2,4 @@
 source .env
 
 cd applications/$1
-$ENGINE build -t lucys-void-packages:latest .
+$ENGINE build -t lvp-$1:latest .
