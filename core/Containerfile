@@ -12,4 +12,3 @@ RUN xbps-install -Syu
 
 ###   Create Build Directory   ###
 RUN mkdir /build
-WORKDIR /build

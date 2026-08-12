@@ -7,7 +7,8 @@ RUN xbps-install -Sy base-devel cmake ninja git perl pkg-config \
     gtk+3-devel dbus-devel libcurl-devel libwebkit2gtk41-devel
 
 
-RUN git clone --branch 5.0 --recursive https://gitlab.com/libeigen/eigen.git /build/eigen
+RUN git clone --branch 5.0 --recursive https://gitlab.com/libeigen/eigen.git /build/eigen5
+WORKDIR /build/eigen5
 
 # Build bundled dependencies
 RUN mkdir build && \
@@ -20,4 +21,8 @@ RUN mkdir build && \
 
 
 # Build Main Project
-RUN ../.. && mkdir -p build && cd build && cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(pwd)/../deps/build/destdir/usr/local" && ninja
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(pwd)/../deps/build/destdir/usr/local" && \
+    ninja && \
+    ninja install
