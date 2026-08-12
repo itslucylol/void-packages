@@ -2,16 +2,23 @@ FROM localhost/lvp-eigen5:latest
 
 WORKDIR /build
 
-# 2. Clone OrcaSlicer
-RUN git clone --recursive https://github.com/OrcaSlicer/OrcaSlicer.git /build/OrcaSlicer
+RUN xbps-install -Sy base-devel cmake ninja git perl pkg-config \
+    glu-devel MesaLib-devel libX11-devel libXext-devel libXrender-devel \
+    libXinerama-devel libXi-devel libXrandr-devel libXcursor-devel \
+    gtk+3-devel dbus-devel libcurl-devel \
+    gmp-devel mpfr-devel
 
-# 3. Build OrcaSlicer's bundled dependencies
+RUN git clone --depth 1 https://github.com/OrcaSlicer/OrcaSlicer.git /build/OrcaSlicer
+WORKDIR /build/OrcaSlicer
+RUN git submodule update --init --recursive --jobs 8
+
+# Build OrcaSlicer's bundled dependencies
 WORKDIR /build/OrcaSlicer/deps
 RUN mkdir build && cd build && \
     cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release && \
-    ninja
+    ninja -j1
 
-# 4. Build OrcaSlicer using your isolated Eigen 5 headers
+# Build OrcaSlicer using Eigen5
 WORKDIR /build/OrcaSlicer
 RUN mkdir build && cd build && \
     cmake .. -G Ninja \
@@ -21,7 +28,3 @@ RUN mkdir build && cd build && \
       -DCMAKE_INSTALL_PREFIX=/opt/orcaslicer-portable && \
     ninja && \
     ninja install
-
-# 5. Compress the installed output into a portable tarball
-WORKDIR /opt
-RUN tar -czvf /orcaslicer-portable.tar.gz orcaslicer-portable
